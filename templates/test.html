@@ -17,8 +17,8 @@
             <ul class="list-group">
                 <li v-for="(item, index) in info" class="list-group-item">
                     {{ index + 1 }} - {{ item.title }}
-                    <button type="button" class="btn btn-primary">Update</button>
-                    <button type="button" class="btn btn-danger">Delete</button>
+                    <button type="button" class="btn btn-primary" v-on:click="updateCourse">Update</button>
+                    <button type="button" class="btn btn-danger" v-on:click="deleteCourse">Delete</button>
                 </li>
             </ul>
 
@@ -41,10 +41,8 @@
     <script>
         new Vue({
             el: '#app',
-            data () {
-                return {
-                    info: null
-                }
+            data: {
+                info: null
             },
             mounted () {
                 axios
@@ -58,6 +56,14 @@
                     this.errored = true;
                 })
                 .finally(() => this.loading = false)
+            },
+            methods: {
+                updateCourse: function () {
+                    console.log("Update Course!");
+                },
+                deleteCourse: function () {
+                    console.log("Delete Course!");
+                }
             }
         })
     </script>
