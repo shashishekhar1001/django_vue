@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>VueJS with Django</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
-    crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
@@ -17,7 +19,7 @@
             <ul class="list-group">
                 <li v-for="(item, index) in info" class="list-group-item">
                     {{ index + 1 }} - {{ item.title }}
-                    <button type="button" class="btn btn-primary" v-on:click="updateCourse(item)">Update</button>
+                    <button type="button" class="btn btn-primary" v-on:click="editCourse(item)" data-toggle="modal" data-target="#myModal">Edit</button>
                     <button type="button" class="btn btn-danger" v-on:click="deleteCourse(item, index)">Delete</button>
                 </li>
             </ul>
@@ -33,16 +35,42 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
+
+            <!-- The Modal to update course -->
+            <div class="modal" id="myModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                        <h4 class="modal-title">Update Course</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                
+                        <!-- Modal body -->
+                        <form v-on:submit.prevent="updateCourse">
+                            <div class="form-group">
+                                <label for="course_name">Course Name</label>
+                                <input type="text" class="form-control" id="course_name" placeholder="Enter Course Name" v-model="current_course.title" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </form>
+                
+                    </div>
+                </div>
+            </div>
         </div>
     {% endverbatim %}
 
 
 
     <script>
+        
         new Vue({
             el: '#app',
             data: {
-                info: null
+                info: null,
+                current_course: ""
             },
             mounted () {
                 axios
@@ -58,9 +86,32 @@
                 .finally(() => this.loading = false)
             },
             methods: {
-                updateCourse: function (object) {
-                    console.log("Update Course!");
+                editCourse: function (object) {
+                    console.log("Edit Course!");
                     console.log(object);
+                    this.current_course = object;
+                    console.log(this.current_course);
+                },
+                updateCourse: function () {
+                    console.log("Update Course");
+                    console.log(this.current_course);
+                    var data = {
+                        "title": this.current_course.title
+                    };
+                    axios.defaults.xsrfCookieName = 'csrftoken';
+                    axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+                    axios
+                    .patch(this.current_course.url, data)
+                    .then(response => {
+                        console.log(response);
+                        console.log("Patch Successful!");
+                        // this.info.splice(index, 1);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        this.errored = true;
+                    })
+                    .finally(() => this.loading = false)
                 },
                 deleteCourse: function (object, index) {
                     console.log("Delete Course!");
