@@ -18,7 +18,7 @@
                 <li v-for="(item, index) in info" class="list-group-item">
                     {{ index + 1 }} - {{ item.title }}
                     <button type="button" class="btn btn-primary" v-on:click="updateCourse(item)">Update</button>
-                    <button type="button" class="btn btn-danger" v-on:click="deleteCourse(item)">Delete</button>
+                    <button type="button" class="btn btn-danger" v-on:click="deleteCourse(item, index)">Delete</button>
                 </li>
             </ul>
 
@@ -62,16 +62,18 @@
                     console.log("Update Course!");
                     console.log(object);
                 },
-                deleteCourse: function (object) {
+                deleteCourse: function (object, index) {
                     console.log("Delete Course!");
                     console.log(object);
                     console.log(object.url);
+                    console.log(index);
                     axios.defaults.xsrfCookieName = 'csrftoken';
                     axios.defaults.xsrfHeaderName = 'X-CSRFToken';
                     axios
                     .delete(object.url)
                     .then(response => {
                         console.log(response);
+                        this.info.splice(index, 1);
                     })
                     .catch(error => {
                         console.log(error);
