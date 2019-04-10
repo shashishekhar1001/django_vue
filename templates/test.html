@@ -28,10 +28,10 @@
             <br>
             <br>
             <hr>
-            <form>
+            <form v-on:submit.prevent="createCourse" id="create_course_form">
                 <div class="form-group">
                     <label for="course_name">Course Name</label>
-                    <input type="text" class="form-control" id="course_name" placeholder="Enter Course Name">
+                    <input type="text" class="form-control" id="course_name" placeholder="Enter Course Name" v-model="new_course_name" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
@@ -60,6 +60,9 @@
                 </div>
             </div>
         </div>
+        <br>
+        <br>
+        <br>
     {% endverbatim %}
 
 
@@ -70,7 +73,8 @@
             el: '#app',
             data: {
                 info: null,
-                current_course: ""
+                current_course: "",
+                new_course_name: ""
             },
             mounted () {
                 axios
@@ -105,7 +109,6 @@
                     .then(response => {
                         console.log(response);
                         console.log("Patch Successful!");
-                        // this.info.splice(index, 1);
                     })
                     .catch(error => {
                         console.log(error);
@@ -125,6 +128,31 @@
                     .then(response => {
                         console.log(response);
                         this.info.splice(index, 1);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        this.errored = true;
+                    })
+                    .finally(() => this.loading = false)
+                },
+                createCourse: function(){
+                    console.log("Create New Course!");
+                    console.log(this.new_course_name);
+                    var url = "/api/courses/"
+                    var data = {
+                        "title": this.new_course_name
+                    };
+                    axios.defaults.xsrfCookieName = 'csrftoken';
+                    axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+                    axios
+                    .post(url, data)
+                    .then(response => {
+                        console.log("Post Successful!");
+                        console.log(response);
+                        this.info.push(response.data);
+                        this.new_course_name = "";
+                        var form = document.getElementById("create_course_form");
+                        form.reset();
                     })
                     .catch(error => {
                         console.log(error);
